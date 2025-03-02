@@ -56,10 +56,10 @@ style.configure(
 
 canvas = tk.Canvas(root, width=314, height=360)
 canvas.place(x=0,y=0)
-canvas.create_line(102, 0, 102, 360, width=1)  # Vertical 1
-canvas.create_line(209, 0, 209, 360, width=1)  # Vertical 2
-canvas.create_line(-3, 179, 314, 179, width=1)  # Horizontal 1
-canvas.create_line(-3, 360, 314, 360, width=1)  # Horizontal 2
+canvas.create_line(102, 0, 102, 360, width=1)  
+canvas.create_line(209, 0, 209, 360, width=1) 
+canvas.create_line(-3, 179, 314, 179, width=1) 
+canvas.create_line(-3, 360, 314, 360, width=1) 
 canvas.tag_lower("lines")
 for i in range(6):
     Checkbutton(root,text="Unit {}".format(i+1),font=("Arial", 10),command=lambda i=i: selectUnit(i)).place(x=i%3*106, y=i//3*181, width=100, height=25)
@@ -92,16 +92,6 @@ for i in range(6):
 
 Label(root, text="Start Macro: F1",font=("Arial", 10)).place(x=10,y=370)
 Label(root, text="Stop Macro: F3",font=("Arial", 10)).place(x=10,y=390)
-
-# slot = int(input("enter slot no:"))
-# units[slot-1] = coordinate()
-# print(units)
-# upg = int(input("enter slot to place and upgrade:"))
-# print(units[upg-1])
-# time.sleep(2)
-# placement(units[upg-1],upg)
-# time.sleep(5)
-# upgrade(units[upg-1])
 
 macro_active = True
 
