@@ -11,9 +11,11 @@ import threading
 unitsBool = [False,False,False,False,False,False]
 units = [(1,1),(2,2),(3,3),(4,4),(5,5),(6,6)]
 unitSlots = [1,1,1,1,1,1]
-unitActions = ["Place","Place","Place","Place","Place","Place"]
-unitUpgrades = [1,1,1,1,1,1]
+unitActions = ["Place & Upgrade","Place & Upgrade","Place & Upgrade","Place & Upgrade","Place & Upgrade","Place & Upgrade"]
+unitUpgrades = [0,0,0,0,0,0]
+unitPrices = [1000,1000,1000,1000,1000,1000]
 labels = []
+entries = []
 combo_boxes_slot = []
 combo_boxes_action = []
 combo_boxes_upgrade = []
@@ -71,16 +73,16 @@ for i in range(6):
     combo_boxes_slot.append(combo_box)
 
     Label(root,text="Action: ".format(i+1),font=("Arial", 10)).place(x=i%3*106, y=i//3*181+55, width=50, height=25)
-    combo_box_action = ttk.Combobox(root,font=("Arial",10), values=["Place","Upgrade"], width=6, state="readonly", takefocus=0)
+    combo_box_action = ttk.Combobox(root,font=("Arial",10), values=["Place & Upgrade","Upgrade"], width=6, state="readonly", takefocus=0)
     combo_box_action.place(x=i%3*106+45, y=i//3*181+55, height=25)
-    combo_box_action.set("Place")
+    combo_box_action.set("Place & Upgrade")
     combo_box_action.bind("<<ComboboxSelected>>", lambda event,i=i: selectSlotAction(event,i))
     combo_boxes_action.append(combo_box_action)
 
     Label(root,text="Upgrade: ".format(i+1),font=("Arial", 10)).place(x=i%3*106, y=i//3*181+85, width=50, height=25)
-    combo_box_upgrade = ttk.Combobox(root,font=("Arial",10), values=[1,2,3,4,5,6,7,8,9,"MAX"], width=6, state="readonly", takefocus=0)
+    combo_box_upgrade = ttk.Combobox(root,font=("Arial",10), values=[0,1,2,3,4,5,6,7,8,9,10,"MAX"], width=6, state="readonly", takefocus=0)
     combo_box_upgrade.place(x=i%3*106+45, y=i//3*181+85, height=25)
-    combo_box_upgrade.set(1)
+    combo_box_upgrade.set(0)
     combo_box_upgrade.bind("<<ComboboxSelected>>", lambda event,i=i: selectSlotUpgrade(event,i))
     combo_boxes_upgrade.append(combo_box_upgrade)
 
