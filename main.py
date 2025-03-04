@@ -41,7 +41,8 @@ def selectSlotUpgrade(event, unit):
 
 root = tk.Tk()
 root.title("AV Macro")
-root.minsize(314,450)
+root.geometry("314x450+900+0")
+root.minsize(314,500)
 
 style = ttk.Style()
 
@@ -117,7 +118,130 @@ def on_press(key):
         macro_active = False
         print("Stop Macro triggered!")
 
+import easyocr
+import numpy as np
+
+reader = easyocr.Reader(['en'], gpu=False)
+old_wave = ""
+total_wave=""
+cash = 0
+upgradeLvl = ""
+
+def waveRead():
+    global old_wave
+    global macro_active
+    while True:
+        screenshot = pyautogui.screenshot(region=(223, 50, 110, 20))
+        screenshot_array = np.array(screenshot)
+        result = reader.readtext(screenshot_array, detail=0,allowlist="Wave0123456789/")
+        if result:
+            text = result[0]
+            if "Wave" in text and "/" in text:
+                try: 
+                    wave_part = text.split()[1]
+                except:
+                    wave_part = text[4:]
+                print(wave_part)
+                try:
+                    total_wave = wave_part.split("/")[1]
+                    current_wave = wave_part.split("/")[0]
+                except:
+                    print(f"wave read failed: {text}")
+                if current_wave != old_wave:
+                    print(f"New wave detected: {current_wave}")
+                    print(total_wave)
+                    old_wave = current_wave
+        elif old_wave == total_wave:
+            gameResult()
+            pyautogui.moveTo(450,450)
+            time.sleep(0.1)
+            pyautogui.click(button='left', clicks=10, interval=0.25,)
+        gameResult()
+        time.sleep(10)
+
+def gameResult():
+    global macro_active
+    global old_wave
+    victoryScreenshot = pyautogui.screenshot(region=(250, 314, 140, 30))
+    victoryScreenshot_array = np.array(victoryScreenshot)
+    victoryResult = reader.readtext(victoryScreenshot_array, detail=0)
+    if victoryResult:
+        print(victoryResult[0])
+        if "VICTORY" in victoryResult[0]:
+            print("Victory")
+            macro_active = False
+            time.sleep(5)
+            pyautogui.moveTo(557,606)
+            time.sleep(0.1)
+            pyautogui.leftClick()
+            macro_active = True
+            macro_thread = threading.Thread(target=startMacro, daemon=True)
+            macro_thread.start()
+            old_wave = ""
+        elif "FAIL" in victoryResult[0]:
+            print("Failed")
+            macro_active = False
+            time.sleep(5)
+            pyautogui.moveTo(557,606)
+            time.sleep(0.1)
+            pyautogui.leftClick()
+            macro_active = True
+            macro_thread = threading.Thread(target=startMacro, daemon=True)
+            macro_thread.start()
+            old_wave = ""
+
+def currentMoney():
+    global cash
+    while True:
+        screenshot = pyautogui.screenshot(region=(400, 785, 100, 25))
+        screenshot_array = np.array(screenshot)
+        result = reader.readtext(screenshot_array, detail=0, allowlist="0123456789Y,")
+        if result:
+            text = result[0]
+            if "Y" in text:
+                text = text.lower()
+                text = "".join(text.split(","))
+                text = text.removesuffix("y")
+                if text.isnumeric():
+                    cash = int(text)
+                print(cash)
+        time.sleep(1)
+
+def currentUpgrade():
+    global upgradeLvl
+    screenshot = pyautogui.screenshot(region=(160, 375, 100, 25))
+    screenshot_array = np.array(screenshot)
+    result = reader.readtext(screenshot_array, detail=0)
+    if result:
+        text = result[0]
+        upgradeLvl = text[text.find("[") + 1 : text.find("]")]
+import subprocess
+script = f'''
+    tell application "System Events"
+        tell application "Roblox" to activate
+        tell process "Roblox"
+            set position of window 1 to {{{0}, {0}}}
+            set size of window 1 to {{{900}, {900}}}
+        end tell
+    end tell
+    '''
+subprocess.run(["osascript", "-e", script])
+
 listener = keyboard.Listener(on_press=on_press)
 listener.start()
 
+current_money = threading.Thread(target=currentMoney, daemon=True)
+current_money.start()
+
+wave_read = threading.Thread(target=waveRead, daemon=True)
+wave_read.start()
+
+# 223,50 333,69 wave
+#217,315 682 547 cards
+#410 160 start button
+#250, 314 390,340 victory
+#557 606 retry
+#400 785 100 25 cash
+#160 375 100 25 upgrade
+#310 373 close
 root.mainloop()
