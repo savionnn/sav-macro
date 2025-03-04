@@ -178,33 +178,38 @@ def waveRead():
     global total_wave
     global macro_active
     while True:
-        screenshot = pyautogui.screenshot(region=(223, 50, 110, 20))
-        screenshot_array = np.array(screenshot)
-        result = reader.readtext(screenshot_array, detail=0,allowlist="Wave0123456789/")
-        if result:
-            text = result[0]
-            if "Wave" in text and "/" in text:
-                try: 
-                    wave_part = text.split()[1]
-                except:
-                    wave_part = text[4:]
-                print(wave_part)
-                try:
-                    total_wave = wave_part.split("/")[1]
-                    current_wave = wave_part.split("/")[0]
-                except:
-                    print(f"wave read failed: {text}")
-                if current_wave != old_wave:
-                    print(f"New wave detected: {current_wave}")
-                    print(total_wave)
-                    old_wave = current_wave
-        elif old_wave == total_wave:
+        try:
+            screenshot = pyautogui.screenshot(region=(223, 50, 110, 20))
+            screenshot_array = np.array(screenshot)
+            result = reader.readtext(screenshot_array, detail=0,allowlist="Wave0123456789/")
+            if result:
+                text = result[0]
+                if "Wave" in text and "/" in text:
+                    try: 
+                        wave_part = text.split()[1]
+                    except:
+                        wave_part = text[4:]
+                    if wave_part[0] == "/":
+                        wave_part = wave_part[1:]
+                    print(wave_part)
+                    try:
+                        total_wave = wave_part.split("/")[1]
+                        current_wave = wave_part.split("/")[0]
+                    except:
+                        print(f"wave read failed: {text}")
+                    if current_wave != old_wave:
+                        print(f"New wave detected: {current_wave}")
+                        print(total_wave)
+                        old_wave = current_wave
+            elif old_wave == total_wave:
+                gameResult()
+                pyautogui.moveTo(450,450)
+                time.sleep(0.1)
+                pyautogui.click(button='left', clicks=10, interval=0.25,)
             gameResult()
-            pyautogui.moveTo(450,450)
-            time.sleep(0.1)
-            pyautogui.click(button='left', clicks=10, interval=0.25,)
-        gameResult()
-        time.sleep(10)
+            time.sleep(10)
+        except Exception as e:
+            print(e)
 
 def gameResult():
     global macro_active
