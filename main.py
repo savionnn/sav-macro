@@ -130,13 +130,13 @@ def startMacro():
                         return
                     time.sleep(0.1)
                 placement.placement(units[i],unitSlots[i])
-                time.sleep(1)
+                time.sleep(2)
                 while str(unitUpgrades[i]) != upgradeLvl:
                     if not macro_active:
                         return
                     upgrade.upgrade(units[i])
                     currentUpgrade()
-                    time.sleep(1)
+                    time.sleep(2)
                 pyautogui.moveTo(310, 373)
                 pyautogui.leftClick()
             else:
@@ -145,7 +145,7 @@ def startMacro():
                         return
                     upgrade.upgrade(units[i])
                     currentUpgrade()
-                    time.sleep(1)
+                    time.sleep(2)
                 pyautogui.moveTo(310, 373)
                 pyautogui.leftClick()
             time.sleep(2)
@@ -167,12 +167,13 @@ import numpy as np
 
 reader = easyocr.Reader(['en'], gpu=False)
 old_wave = ""
-total_wave=""
+total_wave= ""
 cash = 0
 upgradeLvl = ""
 
 def waveRead():
     global old_wave
+    global total_wave
     global macro_active
     while True:
         screenshot = pyautogui.screenshot(region=(223, 50, 110, 20))
@@ -234,22 +235,96 @@ def gameResult():
             macro_thread.start()
             old_wave = ""
 
+def is_one_digit_apart(a: str, b: str) -> bool:
+    if a == b:
+        return False  
+    len_diff = abs(len(a) - len(b))
+    if len_diff == 1:
+        if len(a) < len(b):
+            a, b = b, a  
+        for i in range(len(a)):
+            if a[:i] + a[i+1:] == b:
+                return True
+    elif len_diff == 0:
+        mismatch_count = sum(1 for x, y in zip(a, b) if x != y)
+        if mismatch_count == 1:
+            return True
+    return False
+
 def currentMoney():
     global cash
+    previous_monies = []
+    newcash = 0
     while True:
-        screenshot = pyautogui.screenshot(region=(400, 785, 100, 25))
-        screenshot_array = np.array(screenshot)
-        result = reader.readtext(screenshot_array, detail=0, allowlist="0123456789Y,")
-        if result:
-            text = result[0]
-            if "Y" in text:
+        try:
+            screenshot = pyautogui.screenshot(region=(400, 785, 100, 25))
+            screenshot_array = np.array(screenshot)
+            result = reader.readtext(screenshot_array, detail=0, allowlist="0123456789Yy,.")
+            if result:
+                text = result[0]
+                print(f"raw: {text}")
                 text = text.lower()
-                text = "".join(text.split(","))
-                text = text.removesuffix("y")
-                if text.isnumeric():
-                    cash = int(text)
-                print(cash)
-        time.sleep(1)
+                if "," in text:
+                    hundres = text.split(",")[1]
+                    if len(hundres) == 3:
+                        text = "".join(text.split(","))
+                        text = text[:-1]
+                        if text.isnumeric():
+                            previous_monies.append(text)
+                            if len(previous_monies) > 5:
+                                previous_monies.pop(0)
+                            if len(previous_monies) > 1:
+                                for prev in previous_monies[:-1]:  # Compare with previous reads
+                                    if is_one_digit_apart(prev, text):
+                                        newcash = min(prev, text, key=int)
+                                        break
+                                if newcash:
+                                    cash = newcash
+                                    print(cash)
+                                else:
+                                    cash = int(text)
+                                    print(cash)
+                    elif len(hundres) != 4:
+                        print("not valid read")
+                    else:
+                        text = "".join(text.split(","))
+                        text = text[:-1]
+                        if text.isnumeric():
+                            previous_monies.append(text)
+                            if len(previous_monies) > 5:
+                                previous_monies.pop(0)
+                            if len(previous_monies) > 1:
+                                for prev in previous_monies[:-1]:  # Compare with previous reads
+                                    if is_one_digit_apart(prev, text):
+                                        newcash = min(prev, text, key=int)
+                                        break
+                                if newcash:
+                                    cash = newcash
+                                    print(cash)
+                                else:
+                                    cash = int(text)
+                                    print(cash)
+                else:
+                    text = text[:-1]
+                    if text.isnumeric():
+                        previous_monies.append(text)
+                        if len(previous_monies) > 5:
+                            previous_monies.pop(0)
+                        if len(previous_monies) > 1:
+                            for prev in previous_monies[:-1]:  # Compare with previous reads
+                                if is_one_digit_apart(prev, text):
+                                    newcash = min(prev, text, key=int)
+                                    break
+                            if newcash:
+                                cash = newcash
+                                print(cash)
+                            else:
+                                cash = int(text)
+                                print(cash)
+            newcash = 0
+            time.sleep(0.5)
+        except Exception as e:
+            print(f"moneyread failed: {e}")       
 
 def currentUpgrade():
     global upgradeLvl
