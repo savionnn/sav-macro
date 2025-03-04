@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from pynput import keyboard
+import pyautogui
 import threading
 
 unitsBool = [False,False,False,False,False,False]
@@ -93,18 +94,60 @@ for i in range(6):
     label.place(x=i%3*106, y=i//3*181+150, width=100, height=25)
     labels.append(label)
 
-Label(root, text="Start Macro: F1",font=("Arial", 10)).place(x=10,y=370)
-Label(root, text="Stop Macro: F3",font=("Arial", 10)).place(x=10,y=390)
+    labelPrice = Label(root, text=f"Slot {i+1}: ")
+    labelPrice.place(x=i%3*100+10,y=i//3*20+400)
+    entryPrice = Entry(root)
+    entryPrice.place(x=i%3*100+45,y=i//3*20+400,width=60, height=20)
+    entryPrice.insert(0,"1000")
+    entries.append(entryPrice)
+    
+Label(root, text="Enter slot prices:",font=("Arial", 10)).place(x=10,y=380)
+Label(root, text="Start Macro: F1",font=("Arial", 10)).place(x=10,y=450)
+Label(root, text="Stop Macro: F3",font=("Arial", 10)).place(x=10,y=470)
 
-macro_active = True
+def save_entries():
+    for i in range(len(entries)):
+        unitPrices[i] = (entries[i].get())
+
+macro_active = False
 
 def startMacro():
+    global macro_active
+    global cash
+    pyautogui.moveTo(410,160)
+    time.sleep(0.1)
+    pyautogui.leftClick()
+    save_entries()
+    time.sleep(2)
+    cash = 0
     for i in range(len(unitsBool)):
-        if unitsBool[i] and macro_active:
-            if unitActions[i] == "Place":
+        if unitsBool[i]:
+            if unitActions[i] == "Place & Upgrade":
+                print(f"price: {unitPrices[int(unitSlots[i])-1]}")
+                print(f"cash: {cash}")
+                while int(unitPrices[int(unitSlots[i])-1]) > int(cash):
+                    if not macro_active:
+                        return
+                    time.sleep(0.1)
                 placement.placement(units[i],unitSlots[i])
+                time.sleep(1)
+                while str(unitUpgrades[i]) != upgradeLvl:
+                    if not macro_active:
+                        return
+                    upgrade.upgrade(units[i])
+                    currentUpgrade()
+                    time.sleep(1)
+                pyautogui.moveTo(310, 373)
+                pyautogui.leftClick()
             else:
-                upgrade.upgrade(units[i])
+                while str(unitUpgrades[i]) != upgradeLvl:
+                    if not macro_active:
+                        return
+                    upgrade.upgrade(units[i])
+                    currentUpgrade()
+                    time.sleep(1)
+                pyautogui.moveTo(310, 373)
+                pyautogui.leftClick()
             time.sleep(2)
     return
 
@@ -112,6 +155,7 @@ def on_press(key):
     global macro_active
     if key == keyboard.Key.f1:
         print("Start Macro triggered!")
+        macro_active = True
         macro_thread = threading.Thread(target=startMacro, daemon=True)
         macro_thread.start()
     elif key == keyboard.Key.f3:
