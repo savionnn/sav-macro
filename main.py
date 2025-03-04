@@ -112,6 +112,7 @@ def save_entries():
 macro_active = False
 
 def startMacro():
+    global upgradeLvl
     global macro_active
     global cash
     pyautogui.moveTo(410,160)
@@ -149,6 +150,7 @@ def startMacro():
                 pyautogui.moveTo(310, 373)
                 pyautogui.leftClick()
             time.sleep(2)
+        upgradeLvl = ""
     return
 
 def on_press(key):
