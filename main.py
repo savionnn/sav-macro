@@ -328,7 +328,7 @@ def currentMoney():
 
 def currentUpgrade():
     global upgradeLvl
-    screenshot = pyautogui.screenshot(region=(160, 375, 100, 25))
+    screenshot = pyautogui.screenshot(region=(160, 375, 120, 25))
     screenshot_array = np.array(screenshot)
     result = reader.readtext(screenshot_array, detail=0)
     if result:
