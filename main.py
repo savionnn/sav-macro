@@ -1,6 +1,4 @@
 from macro import upgrade, coordinate, placement
-import importlib
-importlib.reload(upgrade)
 import time
 import tkinter as tk
 from tkinter import *
@@ -47,7 +45,7 @@ root.minsize(314,500)
 
 style = ttk.Style()
 
-root.tk.call("source", "/Users/savion/developer/av-macro/ttk_theme/azure.tcl")  
+root.tk.call("source", "./ttk_theme/azure.tcl")  
 root.tk.call("set_theme", "dark")
 
 style.configure(
