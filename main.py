@@ -148,7 +148,7 @@ def startMacro():
                 pyautogui.moveTo(310, 373)
                 pyautogui.leftClick()
             time.sleep(2)
-        upgradeLvl = ""
+        upgradeLvl = "0"
     return
 
 def on_press(key):
@@ -169,7 +169,7 @@ reader = easyocr.Reader(['en'], gpu=False)
 old_wave = ""
 total_wave= ""
 cash = 0
-upgradeLvl = ""
+upgradeLvl = "0"
 
 def waveRead():
     global old_wave
@@ -212,6 +212,7 @@ def waveRead():
 def gameResult():
     global macro_active
     global old_wave
+    global cash
     victoryScreenshot = pyautogui.screenshot(region=(250, 314, 140, 30))
     victoryScreenshot_array = np.array(victoryScreenshot)
     victoryResult = reader.readtext(victoryScreenshot_array, detail=0)
@@ -228,6 +229,7 @@ def gameResult():
             macro_thread = threading.Thread(target=startMacro, daemon=True)
             macro_thread.start()
             old_wave = ""
+            cash = 0
         elif "FAIL" in victoryResult[0]:
             print("Failed")
             macro_active = False
@@ -239,6 +241,7 @@ def gameResult():
             macro_thread = threading.Thread(target=startMacro, daemon=True)
             macro_thread.start()
             old_wave = ""
+            cash = 0
 
 def is_one_digit_apart(a: str, b: str) -> bool:
     if a == b:
@@ -284,11 +287,21 @@ def currentMoney():
                                         newcash = min(prev, text, key=int)
                                         break
                                 if newcash:
-                                    cash = newcash
-                                    print(cash)
+                                    if cash == 0:
+                                        if newcash == 600:
+                                            cash = newcash
+                                            print(cash)
+                                    else:
+                                        cash = newcash
+                                        print(cash)
                                 else:
-                                    cash = int(text)
-                                    print(cash)
+                                    if cash == 0:
+                                        if text == "600":
+                                            cash = int(text)
+                                            print(cash)
+                                    else:
+                                        cash = int(text)
+                                        print(cash)
                     elif len(hundres) != 4:
                         print("not valid read")
                     else:
@@ -304,13 +317,24 @@ def currentMoney():
                                         newcash = min(prev, text, key=int)
                                         break
                                 if newcash:
-                                    cash = newcash
-                                    print(cash)
+                                    if cash == 0:
+                                        if newcash == 600:
+                                            cash = newcash
+                                            print(cash)
+                                    else:
+                                        cash = newcash
+                                        print(cash)
                                 else:
-                                    cash = int(text)
-                                    print(cash)
+                                    if cash == 0:
+                                        if text == "600":
+                                            cash = int(text)
+                                            print(cash)
+                                    else:
+                                        cash = int(text)
+                                        print(cash)
                 else:
                     text = text[:-1]
+                    print(text)
                     if text.isnumeric():
                         previous_monies.append(text)
                         if len(previous_monies) > 5:
@@ -321,11 +345,21 @@ def currentMoney():
                                     newcash = min(prev, text, key=int)
                                     break
                             if newcash:
-                                cash = newcash
-                                print(cash)
+                                if cash == 0:
+                                    if newcash == 600:
+                                        cash = newcash
+                                        print(cash)
+                                else:
+                                    cash = newcash
+                                    print(cash)
                             else:
-                                cash = int(text)
-                                print(cash)
+                                if cash == 0:
+                                    if text == "600":
+                                        cash = int(text)
+                                        print(cash)
+                                else:
+                                    cash = int(text)
+                                    print(cash)
             newcash = 0
             time.sleep(0.5)
         except Exception as e:
