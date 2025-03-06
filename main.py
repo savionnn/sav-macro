@@ -116,6 +116,9 @@ def startMacro():
     pyautogui.moveTo(410,160)
     time.sleep(0.1)
     pyautogui.leftClick()
+    while cash == 0:
+        pyautogui.leftClick()
+        time.sleep(0.1)
     save_entries()
     time.sleep(2)
     cash = 0
