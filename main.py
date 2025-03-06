@@ -206,7 +206,7 @@ def waveRead():
                 gameResult()
                 pyautogui.moveTo(450,450)
                 time.sleep(0.1)
-                pyautogui.click(button='left', clicks=10, interval=0.25,)
+                pyautogui.click(button='left', clicks=10, interval=0.50,)
             gameResult()
             time.sleep(10)
         except Exception as e:
