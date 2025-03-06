@@ -1,4 +1,4 @@
-This code is running on Python 3.10, for Tkinter 8.6
+This code is running on Python 3.10.16, for Tkinter 8.6
 
 To start:
 1. To install dependencies, run `pip install pynput pyautogui easyocr`
