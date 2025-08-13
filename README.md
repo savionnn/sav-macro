@@ -5,6 +5,6 @@ Make sure your "Menu Bar" on Mac is turned off before starting.
 To start:
 1. To install dependencies, run `pip install pynput pyautogui easyocr discord`
 2. Keep a Roblox window open
-3. To run the code run `python3 main.py`
+3. To run the code run `python3 main_v2.py`
 
 Made by savison
