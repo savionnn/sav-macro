@@ -16,7 +16,9 @@ class unit:
         placement.placement(self.coords,self.slot)
 slotPrices = [1000,1000,1000,1000,1000,1000]
 infiniteMode = False
-portalMode = True
+portalMode = False
+escanorMode = False
+startingCash = "3500"
 infiniteResetWave = 10
 units = []
 units.append(unit(False,(1,1),1,"Place & Upgrade","0"))
@@ -224,7 +226,16 @@ def startMacro():
     global upgradeLvl
     global macro_active
     global cash
-    pyautogui.moveTo(410,160)
+    global escanorMode
+    if escanorMode:
+        time.sleep(3)
+        pyautogui.moveTo(450, 716)
+        pyautogui.leftClick()
+        for i in range(6):
+            pyautogui.moveTo(300+i*60, 840)
+            pyautogui.leftClick()
+    # pyautogui.moveTo(410,160)
+    pyautogui.moveTo(525,125)
     time.sleep(0.1)
     pyautogui.leftClick()
     while cash == 0:
@@ -652,4 +663,6 @@ wave_read.start()
 #450 500 match has been restarted
 #333 510, 450 510, 571 510 select portal
 
+#x: 296, 356, 422, 484, 544, 606 y:840 units
+#450 716 burn
 root.mainloop()
