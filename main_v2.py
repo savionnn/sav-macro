@@ -16,7 +16,9 @@ class unit:
         placement.placement(self.coords,self.slot)
 slotPrices = [1000,1000,1000,1000,1000,1000]
 infiniteMode = False
-portalMode = True
+portalMode = False
+escanorMode = False
+startingCash = "3500"
 infiniteResetWave = 10
 units = []
 units.append(unit(False,(1,1),1,"Place & Upgrade","0"))
@@ -55,8 +57,10 @@ def selectUpgrade(event, i):
     units[i].upgradeLevel = combo_boxes_upgrade[i].get()
 
 def saveEntries():
+    global infiniteResetWave
     for i in range(len(xEntries)):
         units[i].coords = (int(xEntries[i].get()), int(yEntries[i].get()))
+    infiniteResetWave = int(infiniteEntry.get())
         
 def savePrices():
     for i in range(6):
@@ -222,7 +226,16 @@ def startMacro():
     global upgradeLvl
     global macro_active
     global cash
-    pyautogui.moveTo(410,160)
+    global escanorMode
+    if escanorMode:
+        time.sleep(3)
+        pyautogui.moveTo(450, 716)
+        pyautogui.leftClick()
+        for i in range(6):
+            pyautogui.moveTo(300+i*60, 840)
+            pyautogui.leftClick()
+    # pyautogui.moveTo(410,160)
+    pyautogui.moveTo(525,125)
     time.sleep(0.1)
     pyautogui.leftClick()
     while cash == 0:
@@ -270,66 +283,67 @@ def waveRead():
     global total_wave
     global macro_active
     while True:
-        try:
-            screenshot = pyautogui.screenshot(region=(223, 50, 110, 20))
-            screenshot_array = np.array(screenshot)
-            result = reader.readtext(screenshot_array, detail=0,allowlist="Wave0123456789/")
-            if result:
-                text = result[0]
-                if "Wave" in text and "/" in text:
-                    try: 
-                        wave_part = text.split()[1]
-                    except:
-                        wave_part = text[4:]
-                    if wave_part[0] == "/":
-                        wave_part = wave_part[1:]
-                    print(wave_part)
-                    try:
-                        total_wave = wave_part.split("/")[1]
-                        current_wave = wave_part.split("/")[0]
-                    except:
-                        print(f"wave read failed: {text}")
-                        if infiniteMode:
-                            try:
-                                if int(wave_part) >= infiniteResetWave:
+        if macro_active:
+            try:
+                screenshot = pyautogui.screenshot(region=(223, 50, 110, 20))
+                screenshot_array = np.array(screenshot)
+                result = reader.readtext(screenshot_array, detail=0,allowlist="Wave0123456789/")
+                if result:
+                    text = result[0]
+                    if "Wave" in text and "/" in text:
+                        try: 
+                            wave_part = text.split()[1]
+                        except:
+                            wave_part = text[4:]
+                        if wave_part[0] == "/":
+                            wave_part = wave_part[1:]
+                        print(wave_part)
+                        try:
+                            total_wave = wave_part.split("/")[1]
+                            current_wave = wave_part.split("/")[0]
+                        except:
+                            print(f"wave read failed: {text}")
+                            if infiniteMode:
+                                try:
+                                    if int(wave_part) >= infiniteResetWave and int(old_wave)-1 >= infiniteResetWave-1 and old_wave != wave_part:
+                                        print("restart")
+                                        restartMatch()
+                                    else:
+                                        gameResult()
+                                        pyautogui.moveTo(450,506)
+                                        time.sleep(0.1)
+                                        pyautogui.click(button='left', clicks=10, interval=0.50,)
+                                except:
+                                    print("some error")
+                        if current_wave != old_wave:
+                            print(f"New wave detected: {current_wave}")
+                            old_wave = current_wave
+                            if infiniteMode:
+                                if int(old_wave) >= infiniteResetWave and int(old_wave)-1 >= infiniteResetWave-1:
                                     print("restart")
                                     restartMatch()
-                                else:
-                                    gameResult()
-                                    pyautogui.moveTo(450,506)
-                                    time.sleep(0.1)
-                                    pyautogui.click(button='left', clicks=10, interval=0.50,)
-                            except:
-                                print("some error")
-                    if current_wave != old_wave:
-                        print(f"New wave detected: {current_wave}")
-                        old_wave = current_wave
-                        if infiniteMode:
-                            if int(old_wave) >= infiniteResetWave:
-                                print("restart")
-                                restartMatch()
-            elif not infiniteMode and old_wave == total_wave and not portalMode:
+                elif not infiniteMode and old_wave == total_wave and not portalMode:
+                    gameResult()
+                    pyautogui.moveTo(450,450)
+                    time.sleep(0.1)
+                    pyautogui.click(button='left', clicks=10, interval=0.50,)
+                elif portalMode:
+                    pyautogui.moveTo(333,510)
+                    pyautogui.leftClick()
+                    time.sleep(0.5)
+                    pyautogui.moveTo(400,510)
+                    pyautogui.leftClick()
+                    time.sleep(0.5)
+                    pyautogui.moveTo(450,500)
+                    pyautogui.leftClick()
+                    pyautogui.moveTo(450,450)
+                    time.sleep(0.1)
+                    pyautogui.click(button='left', clicks=10, interval=0.50,)
+                    gameResult()
                 gameResult()
-                pyautogui.moveTo(450,450)
-                time.sleep(0.1)
-                pyautogui.click(button='left', clicks=10, interval=0.50,)
-            elif portalMode:
-                pyautogui.moveTo(333,510)
-                pyautogui.leftClick()
-                time.sleep(0.5)
-                pyautogui.moveTo(400,510)
-                pyautogui.leftClick()
-                time.sleep(0.5)
-                pyautogui.moveTo(450,500)
-                pyautogui.leftClick()
-                pyautogui.moveTo(450,450)
-                time.sleep(0.1)
-                pyautogui.click(button='left', clicks=10, interval=0.50,)
-                gameResult()
-            gameResult()
-            time.sleep(10)
-        except Exception as e:
-            print(e)
+                time.sleep(10)
+            except Exception as e:
+                print(e)
 
 def restartMatch():
     global macro_active
@@ -438,47 +452,75 @@ def currentMoney():
     previous_monies = []
     newcash = 0
     while True:
-        try:
-            screenshot = pyautogui.screenshot(region=(400, 785, 100, 25))
-            screenshot_array = np.array(screenshot)
-            result = reader.readtext(screenshot_array, detail=0, allowlist="0123456789Yy,.")
-            if result:
-                text = result[0]
-                text = text.lower()
-                if "," in text:
-                    hundres = text.split(",")[1]
-                    if len(hundres) == 3:
-                        text = "".join(text.split(","))
-                        text = text[:-1]
-                        if text.isnumeric():
-                            previous_monies.append(text)
-                            if len(previous_monies) > 5:
-                                previous_monies.pop(0)
-                            if len(previous_monies) > 1:
-                                for prev in previous_monies[:-1]:  # Compare with previous reads
-                                    if is_one_digit_apart(prev, text):
-                                        newcash = min(prev, text, key=int)
-                                        break
-                                if newcash:
-                                    if cash == 0:
-                                        if newcash == 600:
+        if macro_active:
+            try:
+                screenshot = pyautogui.screenshot(region=(400, 785, 100, 25))
+                screenshot_array = np.array(screenshot)
+                result = reader.readtext(screenshot_array, detail=0, allowlist="0123456789Yy,.")
+                if result:
+                    text = result[0]
+                    text = text.lower()
+                    if "," in text:
+                        hundres = text.split(",")[1]
+                        if len(hundres) == 3:
+                            text = "".join(text.split(","))
+                            text = text[:-1]
+                            if text.isnumeric():
+                                previous_monies.append(text)
+                                if len(previous_monies) > 5:
+                                    previous_monies.pop(0)
+                                if len(previous_monies) > 1:
+                                    for prev in previous_monies[:-1]:  # Compare with previous reads
+                                        if is_one_digit_apart(prev, text):
+                                            newcash = min(prev, text, key=int)
+                                            break
+                                    if newcash:
+                                        if cash == 0:
+                                            if newcash == 600:
+                                                cash = newcash
+                                                print(cash)
+                                        else:
                                             cash = newcash
                                             print(cash)
                                     else:
-                                        cash = newcash
-                                        print(cash)
-                                else:
-                                    if cash == 0:
-                                        if text == "600":
+                                        if cash == 0:
+                                            if text == "600" or text == startingCash:
+                                                cash = int(text)
+                                                print(cash)
+                                        else:
                                             cash = int(text)
                                             print(cash)
+                        elif len(hundres) != 4:
+                            print("not valid read")
+                        else:
+                            text = "".join(text.split(","))
+                            text = text[:-1]
+                            if text.isnumeric():
+                                previous_monies.append(text)
+                                if len(previous_monies) > 5:
+                                    previous_monies.pop(0)
+                                if len(previous_monies) > 1:
+                                    for prev in previous_monies[:-1]:  # Compare with previous reads
+                                        if is_one_digit_apart(prev, text):
+                                            newcash = min(prev, text, key=int)
+                                            break
+                                    if newcash:
+                                        if cash == 0:
+                                            if newcash == 600:
+                                                cash = newcash
+                                                print(cash)
+                                        else:
+                                            cash = newcash
+                                            print(cash)
                                     else:
-                                        cash = int(text)
-                                        print(cash)
-                    elif len(hundres) != 4:
-                        print("not valid read")
+                                        if cash == 0:
+                                            if text == "600" or text == startingCash:
+                                                cash = int(text)
+                                                print(cash)
+                                        else:
+                                            cash = int(text)
+                                            print(cash)
                     else:
-                        text = "".join(text.split(","))
                         text = text[:-1]
                         if text.isnumeric():
                             previous_monies.append(text)
@@ -493,45 +535,18 @@ def currentMoney():
                                     if cash == 0:
                                         if newcash == 600:
                                             cash = newcash
-                                            print(cash)
                                     else:
                                         cash = newcash
-                                        print(cash)
                                 else:
                                     if cash == 0:
-                                        if text == "600":
+                                        if text == "600" or text == startingCash:
                                             cash = int(text)
-                                            print(cash)
                                     else:
                                         cash = int(text)
-                                        print(cash)
-                else:
-                    text = text[:-1]
-                    if text.isnumeric():
-                        previous_monies.append(text)
-                        if len(previous_monies) > 5:
-                            previous_monies.pop(0)
-                        if len(previous_monies) > 1:
-                            for prev in previous_monies[:-1]:  # Compare with previous reads
-                                if is_one_digit_apart(prev, text):
-                                    newcash = min(prev, text, key=int)
-                                    break
-                            if newcash:
-                                if cash == 0:
-                                    if newcash == 600:
-                                        cash = newcash
-                                else:
-                                    cash = newcash
-                            else:
-                                if cash == 0:
-                                    if text == "600":
-                                        cash = int(text)
-                                else:
-                                    cash = int(text)
-            newcash = 0
-            time.sleep(0.5)
-        except Exception as e:
-            print(f"moneyread failed: {e}")
+                newcash = 0
+                time.sleep(0.5)
+            except Exception as e:
+                print(f"moneyread failed: {e}")
 
 def currentUpgrade():
     global upgradeLvl
@@ -633,7 +648,7 @@ current_money.start()
 
 wave_read = threading.Thread(target=waveRead, daemon=True)
 wave_read.start()
-
+#525,125 new start
 # 223,50 333,69 wavet
 #217,315 682 547 cards
 #410 160 start button
@@ -648,4 +663,6 @@ wave_read.start()
 #450 500 match has been restarted
 #333 510, 450 510, 571 510 select portal
 
+#x: 296, 356, 422, 484, 544, 606 y:840 units
+#450 716 burn
 root.mainloop()
